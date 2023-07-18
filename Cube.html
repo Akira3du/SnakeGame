@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+  <script>
+    // Create a scene
+    const scene = new THREE.Scene();
+
+    // Create a camera
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 50;
+
+    // Create a renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Create the sun
+    const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
+    const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    scene.add(sun);
+
+    // Create the planets
+    const planetsData = [
+      { name: "Mercury", size: 0.383, distance: 5.7, color: 0x9e9e9e },
+      { name: "Venus", size: 0.949, distance: 10.8, color: 0xffcc80 },
+      { name: "Earth", size: 1, distance: 15, color: 0x1976d2 },
+      { name: "Mars", size: 0.532, distance: 22.8, color: 0xff5722 },
+      { name: "Jupiter", size: 11.21, distance: 77.8, color: 0xffeb3b },
+      { name: "Saturn", size: 9.45, distance: 143, color: 0xff9800 },
+      { name: "Uranus", size: 4, distance: 287, color: 0x00bcd4 },
+      { name: "Neptune", size: 3.88, distance: 450, color: 0x2196f3 },
+    ];
+
+    const planetGeometry = new THREE.SphereGeometry(1, 32, 32);
+
+    for (let i = 0; i < planetsData.length; i++) {
+      const { name, size, distance, color } = planetsData[i];
+      const planetMaterial = new THREE.MeshBasicMaterial({ color });
+      const planet = new THREE.Mesh(planetGeometry.clone().scale(size, size, size), planetMaterial);
+      planet.position.x = distance;
+      scene.add(planet);
+
+      // Add labels for the planets
+      const planetLabel = createLabel(name);
+      planetLabel.position.x = distance;
+      planetLabel.position.y = 1.5;
+      scene.add(planetLabel);
+    }
+
+    // Create a label helper for the planets
+    function createLabel(text) {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      context.font = "12px Arial";
+      const width = context.measureText(text).width;
+      const height = 14;
+      canvas.width = width;
+      canvas.height = height;
+      context.font = "12px Arial";
+      context.fillStyle = "#ffffff";
+      context.fillText(text, 0, height - 2);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+      const sprite = new THREE.Sprite(spriteMaterial);
+      sprite.scale.set(width / 20, height / 20, 1);
+      return sprite;
+    }
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Rotate the sun
+      sun.rotation.y += 0.01;
+
+      // Render the scene with the camera
+      renderer.render(scene, camera);
+    }
+
+    // Start the animation loop
+    animate();
+  </script>
+</body>
+</html>
